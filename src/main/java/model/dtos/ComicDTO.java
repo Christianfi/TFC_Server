@@ -35,6 +35,8 @@ public class ComicDTO implements Serializable{
     
     private int collectionId;
     
+    private String imageURL;
+    
     private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
     public ComicDTO(Comic c) {
@@ -47,9 +49,18 @@ public class ComicDTO implements Serializable{
         this.isbn = c.getIsbn();
         this.collectionId = c.getCollection().getId();
         this.collectionName = c.getCollection().getName();
+        this.imageURL = c.getImageURL();
     }
 
     public ComicDTO() {
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 
     public int getId() {

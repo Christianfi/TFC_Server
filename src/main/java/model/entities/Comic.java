@@ -41,6 +41,9 @@ public class Comic implements Serializable{
     @Column(name="isbn")
     private String isbn;
     
+    @Column(name="imageURL")
+    private String imageURL;
+    
     @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name="collection")
     private Collection collection;
@@ -48,7 +51,7 @@ public class Comic implements Serializable{
     public Comic() {
     }
 
-    public Comic(String name, Date publishDate, String state, int number, String publisher,String isbn, Collection collection) {
+    public Comic(String name, Date publishDate, String state, int number, String publisher,String isbn, Collection collection, String imageURL) {
         this.name = name;
         this.publishDate = publishDate;
         this.state = state;
@@ -56,6 +59,15 @@ public class Comic implements Serializable{
         this.publisher = publisher;
         this.isbn = isbn;
         this.collection = collection;
+        this.imageURL = imageURL;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 
     public int getId() {
