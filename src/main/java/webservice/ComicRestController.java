@@ -8,7 +8,6 @@ package webservice;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -19,11 +18,11 @@ import java.util.stream.Collectors;
 import model.dao.ICollectionService;
 import model.dao.IComicService;
 import model.dtos.ComicDTO;
+import model.entities.Client;
 import model.entities.Collection;
 import model.entities.Comic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import utils.EmailService;
 import utils.FileUploadUtil;
 
 /**
@@ -70,13 +69,25 @@ public class ComicRestController {
     public int insertComic(@RequestBody ComicDTO cDTO) {
 
         Comic createdComic = comicService.save(dtoToComic(cDTO));
-
-//        URI location = ServletUriComponentsBuilder
-//                .fromCurrentRequest()
-//                .path("/{id}")
-//                .buildAndExpand(createdComic.getId()).toUri();
+        sendNewComicEmail(createdComic);
         return createdComic.getId();
         //TODO SEND CREATED STATUS
+    }
+
+    private void sendNewComicEmail(Comic c) {
+        int size = c.getCollection().getClients().size();
+
+        if (size > 0) {
+            EmailService emailService = new EmailService();
+            String[] emails = new String[size];
+            int i = 0;
+            for (Client client : c.getCollection().getClients()) {
+                emails[i] = client.getEmail();
+                i++;
+            }
+
+            emailService.sendNewComicNotification(emails, c);
+        }
     }
 
     @RequestMapping(value = "/comic/{id}", method = RequestMethod.PUT)
@@ -108,7 +119,7 @@ public class ComicRestController {
             Comic comic = comicService.findById(id).get();
             comic.setImageURL(fileName);
             comicService.save(comic);
-            FileUploadUtil.saveFile("comics-images/" + id, fileName, image);
+            FileUploadUtil.saveFile(System.getProperty("user.home")+"/Pictures/comics-images/" + id, fileName, image);
         } catch (IOException ex) {
             Logger.getLogger(ComicRestController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -119,7 +130,7 @@ public class ComicRestController {
     byte[] getImage(@PathVariable int id) throws IOException {
         ComicDTO comic = new ComicDTO(comicService.findById(id).get());
         if (comic.getImageURL() != null) {
-            InputStream in = new FileInputStream("comics-images/" + id + "/" + comic.getImageURL());
+            InputStream in = new FileInputStream(System.getProperty("user.home")+"/Pictures/comics-images/" + id + "/" + comic.getImageURL());
             return in.readAllBytes();
         }
 

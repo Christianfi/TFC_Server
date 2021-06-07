@@ -31,9 +31,22 @@ public class Collection implements Serializable {
 
     @OneToMany(mappedBy = "collection")
     List<Comic> comics;
+    
+    @Column(name = "imageURL")
+    private String imageURL;
 
     public Collection() {
     }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+    
+    
 
     public List<Comic> getComics() {
         return comics;

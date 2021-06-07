@@ -12,6 +12,7 @@ import model.dao.IClientService;
 import model.dao.ICollectionService;
 import model.dtos.ClientDTO;
 import model.dtos.ClientSuscriptionsDTO;
+import model.dtos.CollectionDTO;
 import model.dtos.SuscriptionDTO;
 import model.entities.Client;
 import model.entities.Collection;
@@ -64,14 +65,14 @@ public class ClientRestController {
     }
 
     @RequestMapping(value = "/client/{id}/suscriptions", method = RequestMethod.GET)
-    public ClientSuscriptionsDTO getSuscriptions(@PathVariable int id) {
+    public List<CollectionDTO> getSuscriptions(@PathVariable int id) {
         Optional<Client> op = clientService.findById(id);
         if (!op.isPresent()) {
             //TODO EXCEPTION NOT FOUND
             return null;
         }
 
-        return new ClientSuscriptionsDTO(op.get());
+        return new ClientSuscriptionsDTO(op.get()).getCollections();
     }
 
     @RequestMapping(value = "/client/{id}", method = RequestMethod.PUT)
@@ -111,7 +112,7 @@ public class ClientRestController {
 
     }
     
-    @RequestMapping(value = "/client/{id}/suscription", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/client/{id}/suscription/delete", method = RequestMethod.POST)
     public void deleteSuscription(@PathVariable int id, @RequestBody SuscriptionDTO suscription) {
 
         Optional<Client> client = clientService.findById(id);
